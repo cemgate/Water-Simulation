@@ -27,35 +27,37 @@ int main(int argc, char *argv[])
     // Tworzenie okna głównego
     MainWindow mainWindow;
     mainWindow.setWindowTitle("VV");
-    mainWindow.resize(1300,1100);
+    mainWindow.resize(1500,1200);
 
 
     // Tworzenie widoku graficznego
     QGraphicsView view(&mainWindow);
-    view.setGeometry(10, 50, 1000, 1000);
+    view.setGeometry(10, 50, 1002, 1002 );
     view.setRenderHint(QPainter::Antialiasing);
 
     // Tworzenie sceny graficznej
     QGraphicsScene scene;
-    scene.setSceneRect(0, 0, 900, 900);
+    scene.setSceneRect(0, 0, 1000, 1000);
 
     // Tworzenie kropli wody
      std::vector<water*> particles;
-    water waterDrop(0, 0, 20, 20);
-    waterDrop.setPos(100,100);
-    particles.push_back(&waterDrop);
-    water waterDrop2(0, 0, 20, 20);
-    waterDrop2.setPos(100,110);
-    particles.push_back(&waterDrop2);
 
 
-    // Dodanie kropli wody do sceny
-    scene.addItem(&waterDrop);
-    scene.addItem(&waterDrop2);
+
+    generateWater(particles);
+    addToScene(particles,scene);
 
 
     // Ustawienie sceny graficznej dla widoku graficznego
+
     view.setScene(&scene);
+    qreal smoothingLength=1;
+    qreal pressureConstant=1.0;
+    qreal restDensity=1000.0;
+    qreal timeStep=0.05;
+
+
+
 
     // Tworzenie animacji ruchu kropli wody
     QTimer timer;
@@ -63,15 +65,24 @@ int main(int argc, char *argv[])
     {
         if(mainWindow.isStart)
         {
-            particles[0]->moveBy(2,2);
-            particles[1]->moveBy(2,2);
-            qDebug() << distance(particles[0],particles[1]);
 
+            for(int i=0;i<particles.size();i++)
+            {
+                particles[i]->velocityY+=.981;
+                calculateDensity(particles[i],particles,smoothingLength,restDensity);
+            }
+            for(int i=0;i<particles.size();i++)
+            {
+                calculateForce(particles[i],particles,smoothingLength,restDensity,pressureConstant);
+            }
+            updatePosition(particles,timeStep);
+            checkEdges(particles);
 
         }
     });
 
     timer.start(10);
+
 
     mainWindow.show();
     return a.exec();
