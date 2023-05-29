@@ -51,10 +51,6 @@ int main(int argc, char *argv[])
     // Ustawienie sceny graficznej dla widoku graficznego
 
     view.setScene(&scene);
-    qreal smoothingLength=1;
-    qreal pressureConstant=1.0;
-    qreal restDensity=1000.0;
-    qreal timeStep=0.05;
 
 
 
@@ -65,23 +61,13 @@ int main(int argc, char *argv[])
     {
         if(mainWindow.isStart)
         {
-
-            for(int i=0;i<particles.size();i++)
-            {
-                particles[i]->velocityY+=.981;
-                calculateDensity(particles[i],particles,smoothingLength,restDensity);
-            }
-            for(int i=0;i<particles.size();i++)
-            {
-                calculateForce(particles[i],particles,smoothingLength,restDensity,pressureConstant);
-            }
-            updatePosition(particles,timeStep);
+            calculateDensityPressure(particles);
+            calculateForce(particles);
             checkEdges(particles);
-
         }
     });
 
-    timer.start(10);
+    timer.start(0);
 
 
     mainWindow.show();

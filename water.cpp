@@ -1,94 +1,144 @@
 #include "water.h"
 
 
-qreal distance(const water* p1,const water* p2)
+void calculateDensityPressure(std::vector<water*> &particles)
 {
-    qreal dx = p2->x() - p1->x();
-    qreal dy= p2->y() - p1->y();
-    return std::sqrt(dx*dx+dy*dy)-20;
-}
+    Eigen::Vector2d rij={0.f,0.f};
 
-void calculateDensity(water* p1,std::vector<water*> &particles,qreal smoothingLength,qreal restDensity)
-{
-    qreal density=0.0;
-    for(auto& i:particles)
+    for(auto& pi: particles)
     {
-        if(i!=p1)
-        {
-            qreal dist=distance(p1,i);
-            if(dist<smoothingLength)
+        pi->isChecked=false;
+        pi->rho=0.f;
+
+        for(auto& pj:particles)
             {
-                double q = 1.0 - (dist/smoothingLength);
-                density+=i->mass*q*q;
-            }
-        }
-    }
-    p1->density=density+restDensity;
-}
 
-void calculateForce(water* p1,std::vector<water*> &particles,qreal smoothingLength,qreal restDensity, qreal pressureConstant)
+                rij={pj->x()-pi->x(),pj->y()-pi->y()};
+                float r2=rij.squaredNorm();
+                float r1=rij.norm();
+
+                if(r2<HSQ)
+                {
+                    pi->rho+=MASS*POLY6*pow(HSQ-r2,3.f);
+                }
+
+                if(r1<H && &pi!=&pj)
+                {
+                    pi->contactedParticles.push_back(rij);
+                    pi->contactedParticlesParameters.push_back(pj);
+                }
+            }
+
+       pi->pressure=GAS_CONST*(pi->rho-REST_DENS);
+       rij={0.f,0.f};
+
+    }
+}
+/*
+void calculateForce(std::vector<water*> &particles)
 {
-    qreal pressure = pressureConstant * (p1->density-restDensity);
-    qreal forceX=0.0;
-    qreal forceY=0.0;
-    for(auto& i:particles)
+    Eigen::Vector2d fpress(0.f,0.f);
+    Eigen::Vector2d fvisc(0.f,0.f);
+
+
+    for(auto& pi:particles)
     {
-        if(i!=p1)
+
+       for(int i=0;i<pi->contactedParticles.size();i++)
+       {
+                if(pi->contactedParticlesParameters[i]->isChecked==false)
+                {
+                    float r=pi->contactedParticles[i].norm();
+                    fpress = -pi->contactedParticles[i].normalized()*MASS*(pi->pressure+pi->contactedParticlesParameters[i]->pressure)/(2.f*pi->contactedParticlesParameters[i]->rho)*SPIKY_GRAD*pow(H-r,3.f);
+                    fvisc = VISC * MASS * (pi->contactedParticlesParameters[i]->velocity - pi->velocity) / pi->contactedParticlesParameters[i]->rho * VISC_LAP * (H - r);
+
+
+                    pi->force+=fpress+fvisc;
+                    pi->contactedParticlesParameters[i]->force+=(-fpress-fvisc)*(pi->contactedParticlesParameters[i]->rho/pi->rho);
+
+                }
+
+
+       }
+
+       float fgrav = G * MASS / pi->rho;
+       //pi->force.x() += fpress.x() + fvisc.x() ;
+       pi->force.y() += fgrav;
+       pi->contactedParticles.clear();
+       pi->contactedParticlesParameters.clear();
+       pi->isChecked=true;
+    }
+}
+*/
+
+
+void calculateForce(std::vector<water*> &particles)
+{
+    Eigen::Vector2d fpress(0.f,0.f);
+    Eigen::Vector2d fvisc(0.f,0.f);
+    Eigen::Vector2d fpress2Particle(0.f,0.f);
+    Eigen::Vector2d fvisc2Particle(0.f,0.f);
+
+    for(auto& pi:particles)
+    {
+
+       for(int i=0;i<pi->contactedParticles.size();i++)
         {
-            qreal dist=distance(i,p1);
-            if(dist<smoothingLength && dist!=0)
+            if(pi->contactedParticlesParameters[i]->isChecked==false)
             {
-                qreal q=10.0-(dist/smoothingLength);
-
-                qreal pressureForce = -1*i->mass*(pressure/(2.0*i->density))*q*q*q;
-
-                qreal viscosityForce =(i->mass/i->density)*(p1->velocityX-i->velocityX)*(1.0-q);
-
-                forceX+=(pressureForce*(p1->x()-i->x()))/dist+viscosityForce*(p1->velocityX-i->velocityX);
-
-                forceY+=(pressureForce*(p1->y()-i->y()))/dist+viscosityForce*(p1->velocityY-i->velocityY);
-
-
+                float r=pi->contactedParticles[i].norm();
+                fpress += -pi->contactedParticles[i].normalized()*MASS*(pi->pressure+pi->contactedParticlesParameters[i]->pressure)/(2.f*pi->contactedParticlesParameters[i]->rho)*SPIKY_GRAD*pow(H-r,3.f);
+                fvisc += VISC * MASS * (pi->contactedParticlesParameters[i]->velocity - pi->velocity) / pi->contactedParticlesParameters[i]->rho * VISC_LAP * (H - r);
+                fpress2Particle = pi->contactedParticles[i].normalized()*MASS*(pi->pressure+pi->contactedParticlesParameters[i]->pressure)/(2.f*pi->rho)*SPIKY_GRAD*pow(H-r,3.f);
+                fvisc2Particle = -VISC * MASS * (pi->contactedParticlesParameters[i]->velocity - pi->velocity) / pi->rho * VISC_LAP * (H - r);
             }
+
+            pi->contactedParticlesParameters[i]->force.x()+=fpress2Particle.x()+fvisc2Particle.x();
+            pi->contactedParticlesParameters[i]->force.y()+=fpress2Particle.y()+fvisc2Particle.y();
+            fpress2Particle={0.f,0.f};
+            fvisc2Particle={0.f,0.f};
         }
-    }
-    p1->velocityX+=10*forceX/p1->density;
-    p1->velocityY+=10*forceY/p1->density;
 
-}
-
-void updatePosition(std::vector<water*> &particles, qreal timeStep)
-{
-    for(auto& i:particles)
-    {
-        i->moveBy(i->velocityX*timeStep,i->velocityY*timeStep);
+        float fgrav = G * MASS / pi->rho;
+        pi->force.x() += fpress.x() + fvisc.x() ;
+        pi->force.y() += fpress.y() + fvisc.y() + fgrav;
+        pi->contactedParticles.clear();
+        pi->contactedParticlesParameters.clear();
+        pi->isChecked=true;
+        fpress={0.f,0.f};
+        fvisc={0.f,0.f};
     }
 }
-
 
 void checkEdges(std::vector<water*> &particles)
 {
     for(auto& i:particles)
     {
+
+        i->velocity+=DT*i->force/i->rho;
+        i->force={0.f,0.f};
+
+        i->moveBy(i->velocity.x()*DT,i->velocity.y()*DT);
+
         if(i->x()>980)
         {
             i->setPos(980,i->y());
-            i->velocityX=-0.7*(i->velocityX);
+            i->velocity.x()*=-0.7;
         }
         if(i->x()<0)
         {
             i->setPos(0,i->y());
-            i->velocityX=-0.7*(i->velocityX);
+            i->velocity.x()*=-0.7;
         }
         if(i->y()>980)
         {
             i->setPos(i->x(),980);
-            i->velocityY=-0.7*(i->velocityY);
+            i->velocity.y()*=-0.7;
         }
         if(i->y()<0)
         {
             i->setPos(i->x(),0);
-            i->velocityY=-0.7*(i->velocityY);
+            i->velocity.y()*=-0.7;
         }
     }
 }
@@ -103,12 +153,28 @@ void addToScene(std::vector<water*> &particles,QGraphicsScene &scene)
 
 void generateWater(std::vector<water*> &particles)
 {
-    for(int i=0;i<100;i++)
+    for(int i=0;i<75;i++)
     {
         water* w=new water(0,0,20,20);
-        w->setPos(i*10,i*10);
+        w->setPos(i*10,980);
         particles.push_back(w);
+
+        water* e=new water(0,0,20,20);
+        e->setPos(i*10,900);
+        particles.push_back(e);
+
+        water* s=new water(0,0,20,20);
+        s->setPos(i*12,100);
+        particles.push_back(s);
+
+        water* t=new water(0,0,20,20);
+        t->setPos(i*12,300);
+        particles.push_back(t);
+
     }
+
+
+    qDebug()<<particles.size();
 }
 
 
