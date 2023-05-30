@@ -34,43 +34,6 @@ void calculateDensityPressure(std::vector<water*> &particles)
 
     }
 }
-/*
-void calculateForce(std::vector<water*> &particles)
-{
-    Eigen::Vector2d fpress(0.f,0.f);
-    Eigen::Vector2d fvisc(0.f,0.f);
-
-
-    for(auto& pi:particles)
-    {
-
-       for(int i=0;i<pi->contactedParticles.size();i++)
-       {
-                if(pi->contactedParticlesParameters[i]->isChecked==false)
-                {
-                    float r=pi->contactedParticles[i].norm();
-                    fpress = -pi->contactedParticles[i].normalized()*MASS*(pi->pressure+pi->contactedParticlesParameters[i]->pressure)/(2.f*pi->contactedParticlesParameters[i]->rho)*SPIKY_GRAD*pow(H-r,3.f);
-                    fvisc = VISC * MASS * (pi->contactedParticlesParameters[i]->velocity - pi->velocity) / pi->contactedParticlesParameters[i]->rho * VISC_LAP * (H - r);
-
-
-                    pi->force+=fpress+fvisc;
-                    pi->contactedParticlesParameters[i]->force+=(-fpress-fvisc)*(pi->contactedParticlesParameters[i]->rho/pi->rho);
-
-                }
-
-
-       }
-
-       float fgrav = G * MASS / pi->rho;
-       //pi->force.x() += fpress.x() + fvisc.x() ;
-       pi->force.y() += fgrav;
-       pi->contactedParticles.clear();
-       pi->contactedParticlesParameters.clear();
-       pi->isChecked=true;
-    }
-}
-*/
-
 
 void calculateForce(std::vector<water*> &particles)
 {
@@ -153,7 +116,7 @@ void addToScene(std::vector<water*> &particles,QGraphicsScene &scene)
 
 void generateWater(std::vector<water*> &particles)
 {
-    for(int i=0;i<75;i++)
+    for(int i=0;i<100;i++)
     {
         water* w=new water(0,0,20,20);
         w->setPos(i*10,980);
@@ -164,17 +127,14 @@ void generateWater(std::vector<water*> &particles)
         particles.push_back(e);
 
         water* s=new water(0,0,20,20);
-        s->setPos(i*12,100);
+        s->setPos(i*10,100);
         particles.push_back(s);
 
         water* t=new water(0,0,20,20);
-        t->setPos(i*12,300);
+        t->setPos(i*10,300);
         particles.push_back(t);
 
     }
-
-
-    qDebug()<<particles.size();
 }
 
 

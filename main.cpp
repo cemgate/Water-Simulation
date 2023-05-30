@@ -1,3 +1,4 @@
+#include "contener.h"
 #include "mainwindow.h"
 #include "water.h"
 #include <QApplication>
@@ -5,12 +6,16 @@
 #include <QTranslator>
 #include <qvector>
 #include<iostream>
+#include<time.h>
+#include<windows.h>
 
 
 
 
-int main(int argc, char *argv[])
+
+int qMain(int argc, char *argv[])
 {
+
     QApplication a(argc, argv);
 
     QTranslator translator;
@@ -42,33 +47,41 @@ int main(int argc, char *argv[])
     // Tworzenie kropli wody
      std::vector<water*> particles;
 
+    contener ushape;
+    ushape.setPos(100,200);
+    ushape.setRotationAngle(360);
 
 
     generateWater(particles);
     addToScene(particles,scene);
+    scene.addItem(&ushape);
 
 
-    // Ustawienie sceny graficznej dla widoku graficznego
 
-    view.setScene(&scene);
+
 
 
 
 
     // Tworzenie animacji ruchu kropli wody
     QTimer timer;
+    timer.start(16);
     QObject::connect(&timer, &QTimer::timeout, [&]()
     {
+
         if(mainWindow.isStart)
         {
+            ushape.setRotationAngle(1);
             calculateDensityPressure(particles);
             calculateForce(particles);
             checkEdges(particles);
+
         }
+
     });
 
-    timer.start(0);
 
+    view.setScene(&scene);
 
     mainWindow.show();
     return a.exec();
