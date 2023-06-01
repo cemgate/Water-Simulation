@@ -47,9 +47,9 @@ int qMain(int argc, char *argv[])
     // Tworzenie kropli wody
      std::vector<water*> particles;
 
-    contener ushape;
-    ushape.setPos(100,200);
-    ushape.setRotationAngle(360);
+    //contener ushape;
+    //ushape.setPos(100,200);
+    //ushape.setRotationAngle(360);
 
 
     generateWater(particles);
@@ -57,27 +57,18 @@ int qMain(int argc, char *argv[])
     scene.addItem(&ushape);
 
 
-
-
-
-
-
-
     // Tworzenie animacji ruchu kropli wody
     QTimer timer;
     timer.start(16);
     QObject::connect(&timer, &QTimer::timeout, [&]()
     {
-
         if(mainWindow.isStart)
         {
-            ushape.setRotationAngle(1);
+            //ushape.setRotationAngle(1);
             calculateDensityPressure(particles);
             calculateForce(particles);
             checkEdges(particles);
-
         }
-
     });
 
 

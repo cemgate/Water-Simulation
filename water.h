@@ -57,7 +57,6 @@ void calculateDensityPressure(std::vector<water*> &particles);
 void calculateForce(std::vector<water*> &particles);
 void updatePosition(std::vector<water*> &particles, qreal timeStep);
 void addToScene(std::vector<water*> &particles,QGraphicsScene &scene);
-//void addParticles(std::vector<water*> &particles, const int numberOfParticles);
 void generateWater(std::vector<water*> &particles);
 
 

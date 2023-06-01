@@ -28,6 +28,8 @@ set(PROJECT_SOURCES
         water.cpp
         contener.h
         contener.cpp
+        reader.cpp
+        reader.h
         ${TS_FILES}
 )
 
