@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1311</width>
+    <height>684</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QPushButton" name="pushButton">
+    <property name="geometry">
+     <rect>
+      <x>1070</x>
+      <y>80</y>
+      <width>171</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton
+{
+color:blue;
+background-color:green;
+font: 700 22pt;
+}
+QPushButton:Click
+{
+ background-color:green;
+}</string>
+    </property>
+    <property name="text">
+     <string>START</string>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>1540</width>
+      <height>1200</height>
+     </size>
+    </property>
+    <property name="shortcut">
+     <string>Ctrl+S</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="RESTART">
+    <property name="geometry">
+     <rect>
+      <x>1070</x>
+      <y>160</y>
+      <width>171</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton
+{
+color:blue;
+background-color:blue;
+font: 700 22pt;
+}
+QPushButton:Click
+{
+ background-color:green;
+}</string>
+    </property>
+    <property name="text">
+     <string>RESTART</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionessa">
+   <property name="text">
+    <string>essa</string>
+   </property>
+  </action>
+  <action name="actionkurwa">
+   <property name="text">
+    <string>kurwa</string>
+   </property>
+  </action>
+  <action name="action1">
+   <property name="text">
+    <string>1</string>
+   </property>
+  </action>
+  <action name="action2">
+   <property name="text">
+    <string>2</string>
+   </property>
+  </action>
+  <action name="action3">
+   <property name="text">
+    <string>3</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

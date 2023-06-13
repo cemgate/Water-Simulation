@@ -1,0 +1,6 @@
+PROJECT_NAME = VV
+INPUT = water.h water.cpp reader.h reader.cpp mainwindow.h
+OUTPUT_DIRECTORY = doc 
+EXTRACT_ALL = YES
+GENERATE_HTML = YES 
+GENERATE_LATEX = NO 
